@@ -112,7 +112,7 @@ lib/
 - **Flutter SDK** version 3.10.8 or newer
   - Download from https://flutter.dev/docs/get-started/install
 - **Android SDK** (for Android phones)
-- **Xcode** (for iPhones)
+- **Android Studio** or an Android emulator (optional)
 
 ### 📥 Installation Steps
 
@@ -140,13 +140,16 @@ flutter run
 - Make sure `android/app/build.gradle` uses API level 24 or higher
 - Camera permission is requested automatically when you first open the app
 
-### 🍎 iPhone Only
+---
 
-- Open `ios/Podfile` and set version to 11.0 or higher:
-  ```ruby
-  platform :ios, '11.0'
-  ```
-- File `ios/Runner/Info.plist` already has camera permission configured
+## 📱 Platform Support
+
+This project currently supports **Android only**.
+
+- **Android**: ✅ Supported
+- **iOS**: ❌ Not supported
+
+The app is developed and tested for Android devices only.
 
 ---
 
