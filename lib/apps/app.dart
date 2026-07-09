@@ -6,12 +6,23 @@ class BlurWaveApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baseTheme = ThemeData.dark(useMaterial3: true);
+
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Blur Wave Hand Tracker',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+      title: 'Blur Wave',
+      theme: baseTheme.copyWith(
+        scaffoldBackgroundColor: const Color(0xFF121414),
+        colorScheme: baseTheme.colorScheme.copyWith(
+          surface: const Color(0xFF121414),
+          primary: const Color(0xFF5FFBD6),
+          secondary: const Color(0xFFB9C7E4),
+          onSurface: const Color(0xFFE2E2E2),
+        ),
+        textTheme: baseTheme.textTheme.apply(
+          bodyColor: const Color(0xFFE2E2E2),
+          displayColor: const Color(0xFFE2E2E2),
+        ),
       ),
       routerConfig: AppRouter.router,
     );

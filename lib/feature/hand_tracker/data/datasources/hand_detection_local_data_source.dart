@@ -4,6 +4,8 @@ import 'package:hand_detection/hand_detection.dart';
 import '../models/detected_hand_model.dart';
 
 class HandDetectionLocalDataSource {
+  static const int _maxDetectionDim = 640;
+
   late final HandDetector _detector;
   bool _isInitialized = false;
 
@@ -12,11 +14,13 @@ class HandDetectionLocalDataSource {
       await _detector.dispose();
     }
     _detector = await HandDetector.create(
+      landmarkModel: HandLandmarkModel.full,
       enableGestures: true,
       enableTracking: true,
-      detectorConf: 0.4,
+      detectorConf: 0.45,
+      palmRoiScale: 2.8,
       minLandmarkScore: 0.5,
-      maxDetections: 2,
+      maxDetections: 1,
       gestureMinConfidence: 0.6,
     );
     _isInitialized = true;
@@ -30,7 +34,7 @@ class HandDetectionLocalDataSource {
     final hands = await _detector.detectFromCameraImage(
       cameraImage,
       rotation: rotation,
-      maxDim: 320,
+      maxDim: _maxDetectionDim,
     );
 
     return hands.map(DetectedHandModel.fromHand).toList();
