@@ -10,7 +10,7 @@ class BlurWaveApp extends StatelessWidget {
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'Blur Wave',
+      title: 'Flux Hand',
       theme: baseTheme.copyWith(
         scaffoldBackgroundColor: const Color(0xFF121414),
         colorScheme: baseTheme.colorScheme.copyWith(

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import '../viewmodels/hand_tracker_viewmodel.dart';
 import 'hand_overlay.dart';
 import 'hand_tracker_top_bar.dart';
-import 'hand_tracker_toast_banner.dart';
 import 'hand_tracker_tracking_button.dart';
 
 class HandTrackerCameraView extends StatelessWidget {
@@ -35,7 +34,8 @@ class HandTrackerCameraView extends StatelessWidget {
       );
     }
 
-    final mirror = controller.description.lensDirection == CameraLensDirection.front;
+    final mirror =
+        controller.description.lensDirection == CameraLensDirection.front;
 
     return Stack(
       fit: StackFit.expand,
@@ -109,10 +109,7 @@ class HandTrackerCameraView extends StatelessWidget {
                     ),
                     if (model.hands.isNotEmpty)
                       Positioned.fill(
-                        child: HandOverlay(
-                          hands: model.hands,
-                          mirror: mirror,
-                        ),
+                        child: HandOverlay(hands: model.hands, mirror: mirror),
                       ),
                   ],
                 ),
@@ -132,8 +129,6 @@ class HandTrackerCameraView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (model.toastMessage != null)
-                          HandTrackerToastBanner(message: model.toastMessage!),
                         const Spacer(),
                         Align(
                           alignment: Alignment.center,

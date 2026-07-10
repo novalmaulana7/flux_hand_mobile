@@ -1,4 +1,4 @@
-package com.example.blur_wave_mobile
+package com.flux_hand_mobile
 
 import io.flutter.embedding.android.FlutterActivity
 

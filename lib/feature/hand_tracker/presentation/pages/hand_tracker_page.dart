@@ -20,7 +20,7 @@ class _HandTrackerPageState extends State<HandTrackerPage> {
   void initState() {
     super.initState();
     _viewModel = sl<HandTrackerViewModel>();
-    _viewModel.initializeSession();
+    _viewModel.initializeSession(context);
   }
 
   @override
@@ -41,10 +41,10 @@ class _HandTrackerPageState extends State<HandTrackerPage> {
             body: model.permissionGranted
                 ? HandTrackerCameraView(
                     model: model,
-                    onToggleStreaming: model.toggleStreaming,
+                    onToggleStreaming: () => model.toggleStreaming(context),
                   )
                 : HandTrackerPermissionView(
-                    onGrantPermission: model.initializeSession,
+                    onGrantPermission: () => model.initializeSession(context),
                   ),
           );
         },

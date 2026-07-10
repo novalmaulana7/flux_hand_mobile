@@ -1,8 +1,7 @@
-import 'dart:async';
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../data/models/detected_hand_model.dart';
 import '../../data/repositories/hand_detection_repository.dart';
@@ -19,9 +18,7 @@ class HandTrackerViewModel extends ChangeNotifier {
   CameraController? _cameraController;
   String? error;
   double? _latestLatencyMs;
-  String? _toastMessage;
   bool _wasThumbUp = false;
-  Timer? _toastTimer;
 
   HandTrackerViewModel({required this.repository});
 
@@ -35,14 +32,14 @@ class HandTrackerViewModel extends ChangeNotifier {
   String get gestureLabel => _gestureLabel(primaryHand);
   String? get statusMessage => isThumbOk ? 'OKE' : null;
   List<DetectedHandModel> get hands => _hands;
-  DetectedHandModel? get primaryHand =>
-      _hands.isEmpty ? null : _hands.reduce((a, b) => a.score >= b.score ? a : b);
+  DetectedHandModel? get primaryHand => _hands.isEmpty
+      ? null
+      : _hands.reduce((a, b) => a.score >= b.score ? a : b);
   CameraDescription? get cameraDescription => _cameraDescription;
   CameraController? get cameraController => _cameraController;
   double? get latestLatencyMs => _latestLatencyMs;
-  String? get toastMessage => _toastMessage;
 
-  Future<void> initializeSession() async {
+  Future<void> initializeSession(BuildContext context) async {
     final granted = await Permission.camera.request();
     _permissionGranted = granted.isGranted;
     notifyListeners();
@@ -51,10 +48,12 @@ class HandTrackerViewModel extends ChangeNotifier {
       return;
     }
 
-    await _initializeCamera();
+    if (context.mounted) {
+      await _initializeCamera(context);
+    }
   }
 
-  Future<void> _initializeCamera() async {
+  Future<void> _initializeCamera(BuildContext context) async {
     try {
       final cameras = await availableCameras();
       final camera = cameras.firstWhere(
@@ -73,7 +72,10 @@ class HandTrackerViewModel extends ChangeNotifier {
       await _cameraController!.initialize();
       await repository.initialize();
       _isInitialized = true;
-      await _startStreaming();
+
+      if (context.mounted) {
+        await _startStreaming(context);
+      }
     } catch (e) {
       error = e.toString();
     } finally {
@@ -81,7 +83,7 @@ class HandTrackerViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> _startStreaming() async {
+  Future<void> _startStreaming(BuildContext context) async {
     if (_cameraController == null || !_cameraController!.value.isInitialized) {
       return;
     }
@@ -89,7 +91,7 @@ class HandTrackerViewModel extends ChangeNotifier {
 
     try {
       await _cameraController!.startImageStream((image) {
-        onCameraImage(image);
+        onCameraImage(context, image);
       });
       _isStreaming = true;
     } catch (e) {
@@ -114,16 +116,19 @@ class HandTrackerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> toggleStreaming() async {
+  Future<void> toggleStreaming(BuildContext context) async {
     if (_isStreaming) {
       await stopStreaming();
     } else {
-      await _startStreaming();
+      await _startStreaming(context);
       notifyListeners();
     }
   }
 
-  Future<void> onCameraImage(CameraImage cameraImage) async {
+  Future<void> onCameraImage(
+    BuildContext context,
+    CameraImage cameraImage,
+  ) async {
     if (!_isInitialized || _isDetecting || _cameraDescription == null) return;
 
     _isDetecting = true;
@@ -131,13 +136,17 @@ class HandTrackerViewModel extends ChangeNotifier {
 
     try {
       final startedAt = DateTime.now();
-      _hands = await repository.detectHandsFromCameraImage(
+      final detectedHands = await repository.detectHandsFromCameraImage(
         cameraImage,
         _cameraDescription!,
       );
+      _hands = _filterHands(detectedHands);
       _latestLatencyMs =
           DateTime.now().difference(startedAt).inMicroseconds / 1000;
-      _handleThumbToast();
+
+      if (context.mounted) {
+        _handleThumbToast(context);
+      }
     } catch (e) {
       error = e.toString();
     } finally {
@@ -147,9 +156,6 @@ class HandTrackerViewModel extends ChangeNotifier {
   }
 
   Future<void> disposeSession() async {
-    _toastTimer?.cancel();
-    _toastTimer = null;
-
     try {
       await stopStreaming();
     } catch (_) {
@@ -165,22 +171,37 @@ class HandTrackerViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleThumbToast() {
+  void _handleThumbToast(BuildContext context) {
     final isThumbUp = _hands.any((hand) => hand.gesture == 'thumbUp');
     if (isThumbUp && !_wasThumbUp) {
       _wasThumbUp = true;
-      _toastMessage = '👍 Jempol terdeteksi';
-      _toastTimer?.cancel();
-      _toastTimer = Timer(const Duration(milliseconds: 900), () {
-        _toastMessage = null;
-        notifyListeners();
-      });
+      toastification.show(
+        context: context,
+        // Use a custom primaryColor so flatColored's background (primary.shade50)
+        // becomes the light green you expect. Provide a darker border via
+        // `borderSide` and a dark foreground color for the text/icon.
+        primaryColor: const Color(0xFF2ECC71), // custom green
+        foregroundColor: const Color(0xFF1E8449),
+        borderSide: const BorderSide(color: Color(0xFF1E8449), width: 1.5),
+        type: ToastificationType.success,
+        style: ToastificationStyle.flatColored,
+        title: const Text('Thumbs Up Detected!'),
+        icon: const Text('👍', style: TextStyle(fontSize: 20)),
+        autoCloseDuration: const Duration(seconds: 3),
+        showIcon: true,
+      );
       return;
     }
 
     if (!isThumbUp) {
       _wasThumbUp = false;
     }
+  }
+
+  List<DetectedHandModel> _filterHands(List<DetectedHandModel> hands) {
+    return hands.where((hand) {
+      return hand.score >= 0.7 && (hand.gesture?.isNotEmpty ?? false);
+    }).toList();
   }
 
   String _gestureLabel(DetectedHandModel? hand) {

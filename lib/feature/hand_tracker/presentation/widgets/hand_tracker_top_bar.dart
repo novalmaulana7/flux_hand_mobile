@@ -20,10 +20,14 @@ class HandTrackerTopBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          const Icon(Icons.waves_rounded, color: Color(0xFF5FFBD6), size: 27),
-          const SizedBox(width: 10),
+          const Image(
+            image: AssetImage('assets/images/flux_hand_logo_dark.png'),
+            width: 50,
+            height: 50,
+          ),
+          const SizedBox(width: 5),
           const Text(
-            'Blur Wave',
+            'Flux Hand',
             style: TextStyle(
               fontSize: 24,
               height: 1,

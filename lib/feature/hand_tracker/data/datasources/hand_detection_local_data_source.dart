@@ -17,11 +17,11 @@ class HandDetectionLocalDataSource {
       landmarkModel: HandLandmarkModel.full,
       enableGestures: true,
       enableTracking: true,
-      detectorConf: 0.45,
-      palmRoiScale: 2.8,
-      minLandmarkScore: 0.5,
+      detectorConf: 0.65,
+      palmRoiScale: 2.0,
+      minLandmarkScore: 0.7,
       maxDetections: 1,
-      gestureMinConfidence: 0.6,
+      gestureMinConfidence: 0.7,
     );
     _isInitialized = true;
   }

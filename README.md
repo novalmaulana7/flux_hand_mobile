@@ -1,6 +1,6 @@
-# Blur Wave Mobile
+# Flux Hand Mobile
 
-## 🎯 What is Blur Wave Mobile?
+## 🎯 What is Flux Hand Mobile?
 
 This is a mobile app that **detects hand movements through your camera** and responds with interactive visual effects.
 

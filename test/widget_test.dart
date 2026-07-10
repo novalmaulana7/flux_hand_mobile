@@ -7,7 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:blur_wave_mobile/apps/app.dart';
+import 'package:flux_hand_mobile/apps/app.dart';
 
 void main() {
   testWidgets('App loads with hand tracker route', (WidgetTester tester) async {
